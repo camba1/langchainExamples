@@ -14,9 +14,12 @@ def predict(prompt, history):
         history_langchain_format.append(HumanMessage(content=human))
         history_langchain_format.append(AIMessage(content=ai))
     history_langchain_format.append(HumanMessage(content=prompt))
-    gpt_response = llm(history_langchain_format)
-    print(gpt_response)
-    return gpt_response.content
-
+    gpt_response = llm.stream(history_langchain_format)
+    # gpt_response = llm(history_langchain_format)
+    # return gpt_response.content
+    partial_message = ""
+    for chunk in gpt_response:
+        partial_message = partial_message + chunk.dict()['content']
+        yield partial_message
 
 gr.ChatInterface(predict).launch()
