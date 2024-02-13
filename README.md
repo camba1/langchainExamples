@@ -9,5 +9,5 @@ pip install -r requirements.txt
 
 Run using: 
 ```shell
-streamlit run main.py
+streamlit run streamlitChatBot.py
 ```
