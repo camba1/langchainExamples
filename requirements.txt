@@ -1,5 +1,10 @@
-streamlit~=1.31.0
-openai
-langchain~=0.1.5
+gradio==4.18.0
+langchain==0.1.8
+langchain_openai==0.0.6
+langchain-community==0.0.21
+langchain-core==0.1.24
+openai==1.11.1
+pandas==2.2.0
+streamlit==1.31.0
 
-gradio~=4.18.0
+
