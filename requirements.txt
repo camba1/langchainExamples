@@ -6,5 +6,10 @@ langchain-core==0.1.24
 openai==1.11.1
 pandas==2.2.0
 streamlit==1.31.0
-
-
+pypdf==4.0.2
+yt_dlp
+pydub
+bs4
+unstructured
+markdown
+chromadb
