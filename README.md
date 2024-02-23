@@ -1,6 +1,25 @@
-# Simple LLM Chat Application
+# Simple LLM Chat Examples
 
-This is a simple chat application that was built using Streamlit, langchain and OpenAI (as the LLM)
+This repo is a compilation of simple examples to run LLM based applications.
+Note that for the majority of these examples to work, you will to have the openAI API key set in your environment.
+
+```shell
+export OPENAI_API_KEY=<your API KEY>
+```
+
+## Samples
+
+- streamlitChatBot: Simple chat application that was built using Streamlit (WebUI), langchain and OpenAI 
+- simpleOpenAi: Simple program to interact with openAI using the OpenAi library directly
+- simpleGradio: A simple Gradio frontend. Not connected to anything
+- gradioChatbot: Simple chat application that was built using Gradio (WebUI), langchain and OpenAI. 
+This implements simple "streaming" to simulate the chatbot response being typed
+- langChainExamples: Folder that contains a number of simple Langchain examples. These are all run from the command line
+  - simpleChain: A basic chain to interact with Open AI
+  - agent: Create an Agent to run ll-math tool and solve a math question
+  - agentLCEL: Create an Agent to run ll-math tool and solve a math question. This agent is build using LCEL
+  - agentPlanExecute: Create s Plan and Execute type of Agent to run a math solving tool
+  
 
 Install the requirements 
 ```shell
