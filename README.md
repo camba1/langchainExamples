@@ -31,6 +31,16 @@ Run using:
 streamlit run streamlitChatBot.py
 ```
 
+## Langsmith
+
+If you want to send traces of your chains to LangSmith, you can set the following environment variables:
+
+```shell
+  export LANGCHAIN_TRACING_V2=true
+  export LANGCHAIN_API_KEY=<YOUR LANGSMITH_API_KEY >
+  export LANGCHAIN_PROJECT="Test Project"
+```
+Note that LANGCHAIN_PROJECT is optional. If a project is not specified, the trace goes into the "default" project
 
 For the YouTube downloader code (langchainExamples/simpleDocumentLoaders.py), ensure that you have ffmpeg installed
 and in the system path. The easiest way to do this is using brew (on Mac):
