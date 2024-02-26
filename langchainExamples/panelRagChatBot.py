@@ -3,11 +3,12 @@ import param
 
 # --------- Chatbot Logic ------------
 from langchain_openai import OpenAIEmbeddings
-from langchain.text_splitter import  RecursiveCharacterTextSplitter
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
-from langchain.chains import   ConversationalRetrievalChain
+from langchain.chains import ConversationalRetrievalChain
 from langchain_openai import ChatOpenAI
 from langchain_community.document_loaders import PyPDFLoader
+
 
 class RagChatBot(param.Parameterized):
     chat_history = param.List([])
@@ -23,7 +24,6 @@ class RagChatBot(param.Parameterized):
         self.chain_type = chain_type
         self.qa = self.load_db(self.llm, self.loaded_file, self.chain_type, 4)
 
-
     def call_load_db(self, count):
         """
         Load a new file and update the chatbot.
@@ -36,7 +36,7 @@ class RagChatBot(param.Parameterized):
             file_input.save("output_docs/temp.pdf")  # local copy
             self.loaded_file = file_input.filename
             button_load.button_style = "outline"
-            self.qa = self.load_db(self.llm,"output_docs/temp.pdf", self.chain_type, 4)
+            self.qa = self.load_db(self.llm, "output_docs/temp.pdf", self.chain_type, 4)
             button_load.button_style = "solid"
         self.clr_history()
         return pn.pane.Markdown(f"Loaded File: {self.loaded_file}")
@@ -82,7 +82,7 @@ class RagChatBot(param.Parameterized):
     @param.depends('db_response', )
     def get_sources(self):
         """
-        This method populates the last vector database response or a empty if there has been no DB access yet
+        This method populates the last vector database response or an empty if there has been no DB access yet
         :return: Last response from the DB or empty
         """
         if not self.db_response:
@@ -108,16 +108,19 @@ class RagChatBot(param.Parameterized):
     def clr_history(self, count=0):
         """
         Clears the variable that holds the chat history
-        :param count:
-        :return:
+        :return: Empty
         """
+        self.answer = ""
+        self.db_query = ""
+        self.db_response = []
+        self.panels = []
         self.chat_history = []
         return
 
     @staticmethod
     def load_db(llm, file, chain_type, k):
         """
-        Loads a file contents to the vector DB and prepares a conversation chain to interact with the LLM
+        Loads a file contents to the vector DB and prepares a conversation chain to interact with the model
         :param llm: LLM to use for the conversation chain
         :param file: File to load to the vector DB
         :param chain_type: Type of conversation chain to use.
@@ -149,17 +152,17 @@ class RagChatBot(param.Parameterized):
 # --------- Main UI Code ------------
 
 llm_model = "gpt-3.5-turbo"
-default_file = "data/MachineLearning-Lecture01.pdf"
-llm = ChatOpenAI(temperature=0, model=llm_model)
-chain_type = "stuff"
+default_pdf_file = "data/MachineLearning-Lecture01.pdf"
+chat_llm = ChatOpenAI(temperature=0, model=llm_model)
+default_chain_type = "stuff"
 
-rag_chat_bot = RagChatBot( default_file, chain_type, llm)
+rag_chat_bot = RagChatBot(default_pdf_file, default_chain_type, chat_llm)
 
 file_input = pn.widgets.FileInput(accept='.pdf')
 button_load = pn.widgets.Button(name="Load DB", button_type='primary')
 button_clearhistory = pn.widgets.Button(name="Clear History", button_type='warning')
 button_clearhistory.on_click(rag_chat_bot.clr_history)
-inp = pn.widgets.TextInput( placeholder='Enter text here…')
+inp = pn.widgets.TextInput(placeholder='Enter text here…')
 
 bound_button_load = pn.bind(rag_chat_bot.call_load_db, button_load.param.clicks)
 conversation = pn.bind(rag_chat_bot.convchain, inp)
@@ -167,26 +170,26 @@ conversation = pn.bind(rag_chat_bot.convchain, inp)
 tab1 = pn.Column(
     pn.Row(inp),
     pn.layout.Divider(),
-    pn.panel(conversation,  loading_indicator=True, height=300),
+    pn.panel(conversation, loading_indicator=True, height=300),
     pn.layout.Divider(),
 )
-tab2= pn.Column(
+tab2 = pn.Column(
     pn.panel(rag_chat_bot.get_lquest),
     pn.layout.Divider(),
     pn.panel(rag_chat_bot.get_sources),
 )
-tab3= pn.Column(
+tab3 = pn.Column(
     pn.panel(rag_chat_bot.get_chats),
     pn.layout.Divider(),
 )
-tab4=pn.Column(
-    pn.Row( file_input, button_load, bound_button_load),
-    pn.Row( button_clearhistory, pn.pane.Markdown("Clears chat history. Can use to start a new topic" )),
+tab4 = pn.Column(
+    pn.Row(file_input, button_load, bound_button_load),
+    pn.Row(button_clearhistory, pn.pane.Markdown("Clears chat history. Can use to start a new topic")),
     pn.layout.Divider(),
 
 )
 dashboard = pn.Column(
     pn.Row(pn.pane.Markdown('# ChatWithYourData_Bot')),
-    pn.Tabs(('Conversation', tab1), ('Database', tab2), ('Chat History', tab3),('Configure', tab4))
+    pn.Tabs(('Conversation', tab1), ('Database', tab2), ('Chat History', tab3), ('Configure', tab4))
 )
 dashboard.servable()
