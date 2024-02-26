@@ -98,8 +98,3 @@ def run_app():
 
 run_app()
 
-# {
-#   "gift": False,
-#   "delivery_days": 5,
-#   "price_value": "pretty affordable!"
-# }
