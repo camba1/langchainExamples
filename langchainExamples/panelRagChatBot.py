@@ -15,27 +15,40 @@ class RagChatBot(param.Parameterized):
     db_query = param.String("")
     db_response = param.List([])
 
-    def __init__(self, default_file, llm, **params):
+    def __init__(self, default_file, chain_type, llm, **params):
         super(RagChatBot, self).__init__(**params)
         self.panels = []
         self.loaded_file = default_file
         self.llm = llm
-        self.qa = self.load_db(self.llm, self.loaded_file, "stuff", 4)
+        self.chain_type = chain_type
+        self.qa = self.load_db(self.llm, self.loaded_file, self.chain_type, 4)
 
 
     def call_load_db(self, count):
+        """
+        Load a new file and update the chatbot.
+        :param count: Help determine if we load the default file or a file provided by the user
+        :return: updated filename to be displayed in the UI
+        """
         if count == 0 or file_input.value is None:  # init or no file specified :
             return pn.pane.Markdown(f"Loaded File: {self.loaded_file}")
         else:
             file_input.save("output_docs/temp.pdf")  # local copy
             self.loaded_file = file_input.filename
             button_load.button_style = "outline"
-            self.qa = self.load_db(self.llm,"output_docs/temp.pdf", "stuff", 4)
+            self.qa = self.load_db(self.llm,"output_docs/temp.pdf", self.chain_type, 4)
             button_load.button_style = "solid"
         self.clr_history()
         return pn.pane.Markdown(f"Loaded File: {self.loaded_file}")
 
     def convchain(self, query):
+        """
+        If the user provides a query, this function is called to handle the query and return the answer.
+        It also updates the chat history and the panels to display the query and the answer.
+        Finally, it updates the db_query and db_response parameters to display the last query and the response.
+        :param query: Question posted by the user
+        :return:
+        """
         if not query:
             return pn.WidgetBox(pn.Row('User:', pn.pane.Markdown("", width=600)), scroll=True)
         result = self.qa.invoke({"question": query, "chat_history": self.chat_history})
@@ -52,6 +65,10 @@ class RagChatBot(param.Parameterized):
 
     @param.depends('db_query ', )
     def get_lquest(self):
+        """
+        This method populates the last vector database query or a default message if there has been no DB access yet
+        :return: Last query sent to the DB
+        """
         if not self.db_query:
             return pn.Column(
                 pn.Row(pn.pane.Markdown(f"Last question to DB:", styles={'background-color': '#F6F6F6'})),
@@ -64,6 +81,10 @@ class RagChatBot(param.Parameterized):
 
     @param.depends('db_response', )
     def get_sources(self):
+        """
+        This method populates the last vector database response or a empty if there has been no DB access yet
+        :return: Last response from the DB or empty
+        """
         if not self.db_response:
             return
         rlist = [pn.Row(pn.pane.Markdown(f"Result of DB lookup:", styles={'background-color': '#F6F6F6'}))]
@@ -73,6 +94,10 @@ class RagChatBot(param.Parameterized):
 
     @param.depends('convchain', 'clr_history')
     def get_chats(self):
+        """
+        This method populates the chat history or a empty if there has been no DB access yet
+        :return: Chat history
+        """
         if not self.chat_history:
             return pn.WidgetBox(pn.Row(pn.pane.Str("No History Yet")), width=600, scroll=True)
         rlist = [pn.Row(pn.pane.Markdown(f"Current Chat History variable", styles={'background-color': '#F6F6F6'}))]
@@ -81,11 +106,24 @@ class RagChatBot(param.Parameterized):
         return pn.WidgetBox(*rlist, width=600, scroll=True)
 
     def clr_history(self, count=0):
+        """
+        Clears the variable that holds the chat history
+        :param count:
+        :return:
+        """
         self.chat_history = []
         return
 
     @staticmethod
     def load_db(llm, file, chain_type, k):
+        """
+        Loads a file contents to the vector DB and prepares a conversation chain to interact with the LLM
+        :param llm: LLM to use for the conversation chain
+        :param file: File to load to the vector DB
+        :param chain_type: Type of conversation chain to use.
+        :param k: Number of results to return from the vector DB
+        :return: Conversational retrieval chain object
+        """
         # load documents
         loader = PyPDFLoader(file)
         documents = loader.load()
@@ -108,13 +146,14 @@ class RagChatBot(param.Parameterized):
         return qa
 
 
-# --------- UI Code ------------
+# --------- Main UI Code ------------
 
 llm_model = "gpt-3.5-turbo"
 default_file = "data/MachineLearning-Lecture01.pdf"
 llm = ChatOpenAI(temperature=0, model=llm_model)
+chain_type = "stuff"
 
-rag_chat_bot = RagChatBot(llm, default_file)
+rag_chat_bot = RagChatBot( default_file, chain_type, llm)
 
 file_input = pn.widgets.FileInput(accept='.pdf')
 button_load = pn.widgets.Button(name="Load DB", button_type='primary')
