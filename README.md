@@ -15,10 +15,20 @@ export OPENAI_API_KEY=<your API KEY>
 - gradioChatbot: Simple chat application that was built using Gradio (WebUI), langchain and OpenAI. 
 This implements simple "streaming" to simulate the chatbot response being typed
 - langChainExamples: Folder that contains a number of simple Langchain examples. These are all run from the command line
-  - simpleChain: A basic chain to interact with Open AI
   - agent: Create an Agent to run ll-math tool and solve a math question
   - agentLCEL: Create an Agent to run ll-math tool and solve a math question. This agent is build using LCEL
   - agentPlanExecute: Create s Plan and Execute type of Agent to run a math solving tool
+  - chunkSplitters: Examples on hos to split markdown and pdf files
+  - conversationMemory: Examples on how to use the different conversation memory types
+  - documentLoaders: Examples on how to load PDFs, YouTube videos (and generating the transcript) and Web content
+  - embeddingsAndRetrieval: How to create embeddings, load them into a vector store (chroma) and retrieve the data from
+vector store
+  - multistepChains: How to setup multi-step chains
+  - outputParser: Creating an output parser to format an LLM response
+  - panelRagChatBot: Full (mostly) RAG chatbot implementation, including Web UI using Panel. Run using `panel serve --show panelRagChatBot.py `
+  - qAndAChainChroma: Simple Q&A chatbot implementation
+  - simpleChain: A basic chain to interact with Open AI
+  - simpleRagChatbotChroma: A basic chat that uses RAG along with a vector store (Chroma)
   
 
 Install the requirements 
@@ -29,6 +39,11 @@ pip install -r requirements.txt
 Run using: 
 ```shell
 streamlit run streamlitChatBot.py
+```
+
+Run using:
+```shell
+panel serve --show panelRagChatBot.py 
 ```
 
 ## Langsmith
