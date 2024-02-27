@@ -29,7 +29,7 @@ vector store
   - outputParser: Creating an output parser to format an LLM response
   - panelRagChatBot: Full (mostly) RAG chatbot implementation, including Web UI using Panel. Run using `panel serve --show panelRagChatBot.py `
   - qAndAChainChroma: Simple Q&A chatbot implementation
-  - simpleChain: A basic chain to interact with Open AI
+  - promptBuilding: Example of building different prompts for a basic chain
   - simpleRagChatbotChroma: A basic chat that uses RAG along with a vector store (Chroma)
   
 
