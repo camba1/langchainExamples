@@ -9,10 +9,12 @@ export OPENAI_API_KEY=<your API KEY>
 
 ## Samples
 
-- streamlitChatBot: Simple chat application that was built using Streamlit (WebUI), langchain and OpenAI 
+- streamlitChatBot: Simple chat application that was built using Streamlit (WebUI), langchain and OpenAI. Run with `streamlit run streamlitChatBot.py`
 - simpleOpenAi: Simple program to interact with openAI using the OpenAi library directly
 - simpleGradio: A simple Gradio frontend. Not connected to anything
-- gradioChatbot: Simple chat application that was built using Gradio (WebUI), langchain and OpenAI. 
+- gradioChatbot: Simple chat application that was built using Gradio (WebUI), langchain and OpenAI
+- chainlitChatbot: Simple chatbot application using Chainlit (WebUI), langChain and OpenAI
+Run with ` python gradioChatbot.py` or to have watching enabled run `gradio gradioChatbot.py`
 This implements simple "streaming" to simulate the chatbot response being typed
 - langChainExamples: Folder that contains a number of simple Langchain examples. These are all run from the command line
   - agent: Create an Agent to run ll-math tool and solve a math question
@@ -34,16 +36,6 @@ vector store
 Install the requirements 
 ```shell
 pip install -r requirements.txt  
-```
-
-Run using: 
-```shell
-streamlit run streamlitChatBot.py
-```
-
-Run using:
-```shell
-panel serve --show panelRagChatBot.py 
 ```
 
 ## Langsmith
