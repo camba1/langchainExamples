@@ -20,6 +20,7 @@ It also creates a chainlit.md which is used as the chatbot Readme page.
   - **documentLoaders**: Examples on how to load PDFs, YouTube videos (and generating the transcript) and Web content
   - **embeddingsAndRetrieval**: How to create embeddings, load them into a vector store (chroma) and retrieve the data from
 vector store
+  - imageQandAChain: Pass an image or an image URL to OpenAi Vision API and and questions about the image
   - **multistepChains**: How to setup multi-step chains
   - **outputParser**: Creating an output parser to format an LLM response
   - **panelRagChatBot**: Full (mostly) RAG chatbot implementation, including Web UI using Panel. Run using `panel serve --show panelRagChatBot.py `
