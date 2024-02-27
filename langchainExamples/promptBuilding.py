@@ -1,5 +1,3 @@
-# from langchain.chat_models import ChatOpenAI
-# from langchain_community.chat_models import ChatOpenAI
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 
@@ -9,6 +7,10 @@ chat = ChatOpenAI(temperature=0.0, model=llm_model)
 
 
 def build_prompt_template():
+    """
+    Create a prompt template for the chatbot to use. Note the placeholders for style and text
+    :return:prompt template object
+    """
     template_string = """Translate the text \
     that is delimited by triple backticks \
     into a style that is {style}. \
@@ -20,6 +22,10 @@ def build_prompt_template():
 
 
 def build_customer_chat_prompt(prompt_template):
+    """
+    Combine the prompt template with the code for the place holders and call the LLM
+    :param prompt_template:
+    """
     print(prompt_template.messages[0].prompt)
     print(prompt_template.messages[0].prompt.input_variables)
 
@@ -52,6 +58,10 @@ def build_customer_chat_prompt(prompt_template):
 
 
 def build_service_chat_prompt(prompt_template):
+    """
+    Combine the prompt template with the code for the place holders and call the LLM
+    :param prompt_template:
+    """
     service_reply = """Hey there customer, \
     the warranty does not cover \
     cleaning expenses for your kitchen \
@@ -77,6 +87,15 @@ def build_service_chat_prompt(prompt_template):
     print(service_response.content)
 
 
-prompt_template = build_prompt_template()
-build_customer_chat_prompt(prompt_template)
-build_service_chat_prompt(prompt_template)
+def app_run():
+    """
+    Build a prompt template and use it to call the LLM as the customer and then as the service rep.
+    Each call has a different style of reply that is used to re-write the responses provided by the users
+    :return:
+    """
+    prompt_template = build_prompt_template()
+    build_customer_chat_prompt(prompt_template)
+    build_service_chat_prompt(prompt_template)
+
+
+app_run()
