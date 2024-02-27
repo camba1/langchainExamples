@@ -4,27 +4,52 @@ from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 from langchain.chains import LLMChain
 
+# Import for simple sequential chains
+from langchain.chains import SimpleSequentialChain
+
+# Import for sequential chains
+from langchain.chains import SequentialChain
+
+# Imports for router chains
+from langchain.chains.router import MultiPromptChain
+from langchain.chains.router.llm_router import LLMRouterChain, RouterOutputParser
+from langchain.prompts import PromptTemplate
+# End imports for router chains
 
 llm_model = "gpt-3.5-turbo"
 
 
-
-def load_data():
-    df = pd.read_csv("data/ProductsReview.csv")
+def load_data(filepath):
+    """
+    Load a csv file into a pandas dataframe.
+    :param filepath: path to the local file to load
+    :return: The dataframe head
+    """
+    df = pd.read_csv(filepath)
     print(df.head())
     return df.head()
 
 
-def basicLlmChain(product, llm):
+def basic_llm_chain(product, llm):
+    """
+    Runs a basic chain to answer a  question about a product
+    :param product: The product for which we need information
+    :param llm: Model to use in the chat
+    """
     prompt = ChatPromptTemplate.from_template("What is the best name to describe a company that makes {product}")
     chain = LLMChain(prompt=prompt, llm=llm)
     result = chain.invoke(product)
     print(result)
 
 
-from langchain.chains import SimpleSequentialChain
+def simple_sequential(product, llm):
+    """
+    Simple two-step sequential chain where we first determine who makes a particular product, and then we
+    write a quick summary about the manufacturer. Each chain in the sequence can take only one input and one output
+    :param product:
+    :param llm: Model to be used
+    """
 
-def simpleSequential(product, llm):
     # prompt template 1
     first_prompt = ChatPromptTemplate.from_template(
         "What is the best name to describe \
@@ -46,13 +71,19 @@ def simpleSequential(product, llm):
     overall_simple_chain = SimpleSequentialChain(chains=[chain_one, chain_two],
                                                  verbose=True
                                                  )
-    overall_simple_chain.invoke(product)
+    result = overall_simple_chain.invoke(product)
+    print(result)
 
-
-from langchain.chains import SequentialChain
 
 def sequential_chain(df_product_reviews, review_index, llm):
-
+    """
+    Simple two-step sequential chain where we first determine who makes a particular product, and then we
+    write a quick summary about the manufacturer. Each chain in the sequence can take
+     multiple one inputs and one outputs
+    :param review_index: The index of the review to use in the sequential chain
+    :param df_product_reviews: information about the reviews of the different products
+    :param llm: Model to be used
+    """
     # prompt template 1: translate to english
     first_prompt = ChatPromptTemplate.from_template(
         "Translate the following review to english:"
@@ -73,9 +104,9 @@ def sequential_chain(df_product_reviews, review_index, llm):
         "What language is the following review:\n\n{Review}"
     )
     # chain 3: input= Review and output= language
-    chain_three = LLMChain(llm=llm, prompt=third_prompt,output_key="language")
+    chain_three = LLMChain(llm=llm, prompt=third_prompt, output_key="language")
 
-    # prompt template 4: follow up message
+    # prompt template 4: follow-up message
     fourth_prompt = ChatPromptTemplate.from_template(
         "Write a follow up response to the following "
         "summary in the specified language:"
@@ -99,12 +130,11 @@ def sequential_chain(df_product_reviews, review_index, llm):
     print(result)
 
 
-from langchain.chains.router import MultiPromptChain
-from langchain.chains.router.llm_router import LLMRouterChain,RouterOutputParser
-from langchain.prompts import PromptTemplate
-
 def router_chain_templates():
-
+    """
+    Build the different prompt templates to be used in the router chain
+    :return: list of prompt templates
+    """
     physics_template = """You are a very smart physics professor. \
     You are great at answering questions about physics in a concise\
     and easy to understand manner. \
@@ -157,10 +187,13 @@ def router_chain_templates():
     return templates
 
 
-
-
 def router_chain_prompt_infos(templates):
-
+    """
+    Build the list containing the JSON objects that contain sll the information needed by the router chain
+    to use the different prompt templates we are providing
+    :param templates: The list of prompt templates
+    :return: List of JSON prompt templates in a format that is usable by the router chain
+    """
     prompt_infos = [
         {
             "name": "physics",
@@ -187,6 +220,11 @@ def router_chain_prompt_infos(templates):
 
 
 def build_router_template_prompt():
+    """
+    Build the overall prompt to be used by the router chain, it contains, among ohter things, place holders
+    for our prompt templates ("candidate prompts)
+    :return: final prompt template string
+    """
     router_prompt_template = """Given a raw text input to a 
     language model select the model prompt best suited for the input. 
     You will be given the names of the available prompts and a 
@@ -221,6 +259,13 @@ def build_router_template_prompt():
 
 
 def build_router_chain(prompt_infos, router_prompt_template, llm):
+    """
+    Build the router chain as a combination of multiple individual chains
+    :param prompt_infos: The diferent prompt templates that can be used by the chain
+    :param router_prompt_template: Final Chain prompt template string
+    :param llm: Model to be used
+    :return: Chain object
+    """
     # loop through prompt_infos and create a chain for each prompt
     destination_chains = {}
     for p_info in prompt_infos:
@@ -261,25 +306,33 @@ def build_router_chain(prompt_infos, router_prompt_template, llm):
 
 
 def run_app():
+    """
+    Call the different types of chains and run them
+    """
+
     llm = ChatOpenAI(temperature=0.9, model=llm_model)
     product = "Queen Size Sheet Set"
     # LLM Chain
-    basicLlmChain(product, llm)
+    basic_llm_chain(product, llm)
+
     # Simple Sequential Chain
-    simpleSequential(product, llm)
+    simple_sequential(product, llm)
+
     # Sequential Chain
-    df_product_reviews = load_data()
+    filepath="data/ProductsReview.csv"
+    df_product_reviews = load_data(filepath)
     review_index = 4
     sequential_chain(df_product_reviews, review_index, llm)
+
     # Routing Chain
     llm = ChatOpenAI(temperature=0.0, model=llm_model)
     templates = router_chain_templates()
     prompt_infos = router_chain_prompt_infos(templates)
     router_prompt_template = build_router_template_prompt()
     chain = build_router_chain(prompt_infos, router_prompt_template, llm)
-    print(chain.invoke("What is black body radiation?"))
-    print(chain.invoke("What is 2 + 2"))
-    print(chain.invoke("Who is R2D2"))
+    print(chain.invoke({"input":"What is black body radiation?"}))
+    print(chain.invoke({"input":"What is 2 + 2"}))
+    print(chain.invoke({"input":"Who is R2D2"}))
+
 
 run_app()
-
