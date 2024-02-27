@@ -80,4 +80,3 @@ celerybeat-schedule
 # Project specific files
 output_docs/
 chromaDB/docs/
-chainlit.md
