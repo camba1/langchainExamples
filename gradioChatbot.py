@@ -1,6 +1,6 @@
 import gradio as gr
 import os
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain.schema import HumanMessage, AIMessage
 
 AI_KEY = os.getenv("OPENAI_API_KEY")
