@@ -1,5 +1,4 @@
 from langchain_openai import ChatOpenAI
-from langchain.prompts import PromptTemplate
 from langchain.schema.messages import HumanMessage
 
 import base64
@@ -62,13 +61,18 @@ def question_image_from_file(image_path, detail, question):
 
 
 def app_run():
+    """
+    Ask a question from an image in a URL and the ask a question about a local image uploaded to Open AI
+    """
+
     detail = "auto"
     question = "what is this image showing. Be concise."
     image_url = "https://raw.githubusercontent.com/camba1/gotemp/master/diagramsforDocs/UI_Promo_detail.png"
     question_image_from_url(image_url, detail, question)
-    # image_path = "data/UI_Promo_detail.png"
-    # question = "what is the validity date of the promotion in this image"
-    # question_image_from_file(image_path, detail, question)
+
+    image_path = "data/UI_Promo_detail.png"
+    question = "what is the validity date of the promotion in this image"
+    question_image_from_file(image_path, detail, question)
 
 
 app_run()
