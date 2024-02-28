@@ -24,7 +24,7 @@ def solve_math_problem(query, agent_verbose_output=False):
     tools = load_tools(['llm-math'], llm=llm)
 
     # Build our prompt
-    prompt = hub.pull("hwchase17/react")   # Pull pre-existing prompt from langchain hub
+    prompt = hub.pull("hwchase17/react")  # Pull pre-existing prompt from langchain hub
 
     print("---------ORIGINAL PROMPT-------------")
     print(prompt)
@@ -45,13 +45,13 @@ def solve_math_problem(query, agent_verbose_output=False):
 
     #  Define and execute agent
     agent = (
-        {
-            "input": lambda x: x["input"],
-            "agent_scratchpad": lambda x: format_log_to_str(x["intermediate_steps"]),
-        }
-        | prompt
-        | llm_with_stop
-        | ReActSingleInputOutputParser()
+            {
+                "input": lambda x: x["input"],
+                "agent_scratchpad": lambda x: format_log_to_str(x["intermediate_steps"]),
+            }
+            | prompt
+            | llm_with_stop
+            | ReActSingleInputOutputParser()
     )
 
     agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=agent_verbose_output)
@@ -61,7 +61,9 @@ def solve_math_problem(query, agent_verbose_output=False):
 
     print(result)
 
+
 def app_run():
-    solve_math_problem({"input":"What is the 25% of 300?"}, agent_verbose_output=False)
+    solve_math_problem({"input": "What is the 25% of 300?"}, agent_verbose_output=False)
+
 
 app_run()
