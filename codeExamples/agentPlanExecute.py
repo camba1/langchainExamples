@@ -10,6 +10,7 @@ def solve_math_problem(query, agent_verbose_output=False):
     Use an agent to solve the math problem in the query. At the time of this writing, plan and execute chains
     are still experimental. Note that sometimes the function will fail thinking that it needs to pass a string
     to numexpr, but it works in most cases
+    :param agent_verbose_output: Indicates if the agent will return additional information or not
     :param query: Math problem to be solved
     :return:
     """
