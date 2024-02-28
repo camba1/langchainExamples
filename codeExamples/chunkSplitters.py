@@ -1,6 +1,13 @@
 from langchain.text_splitter import RecursiveCharacterTextSplitter, CharacterTextSplitter
+from langchain.text_splitter import MarkdownHeaderTextSplitter
+from langchain_community.document_loaders import PyPDFLoader
+from langchain_community.document_loaders import TextLoader
+
 
 def simple_example():
+    """
+    Examples of splitting simple strings into chunks
+    """
     chunk_size =26
     chunk_overlap = 4
 
@@ -35,9 +42,12 @@ def simple_example():
     )
     print(f'C split text3 with new separator: {c_splitter.split_text(text3)}')
 
-from langchain_community.document_loaders import PyPDFLoader
 
 def split_pdf(path):
+    """
+    Example of loading and splitting a pdf
+    :param path: Path to the pdf to be split
+    """
     loader = PyPDFLoader(path)
     pages = loader.load()
     text_splitter = CharacterTextSplitter(
@@ -54,14 +64,14 @@ def split_pdf(path):
     print(f'fifth split doc metadata (note that it came from the 1st page in the original doc): {docs[5].metadata}')
 
 
-from langchain.text_splitter import MarkdownHeaderTextSplitter
-from langchain_community.document_loaders import TextLoader
-
 def context_aware_splitting(path):
+    """
+    Example of loading and splitting a markdown file. Note that we cannot use the markdown loader as that removes
+    the markdown charters (e.g. #, ##, etc), so it uses the basic text loader instead.
+    The file is split based on the document headers rather that number of characters or tokens
+    :param path: Path to the pdf to be split
+    """
 
-    # Cannot use the markdown loader as that removes the markdown charters (e.g. #, ##, etc)
-    # so we use the basic text loader instead
-    # loader = UnstructuredMarkdownLoader(path)
     loader = TextLoader(path)
     data = loader.load()
     markdown_document = data[0].page_content
@@ -83,6 +93,10 @@ def context_aware_splitting(path):
     print(f'Second split {md_header_splits[1]}')
 
 def app_run():
+    """
+    Run the different examples of splitting text and files into chunks
+    :return:
+    """
     simple_example()
     split_pdf("data/MachineLearning-Lecture01.pdf")
     context_aware_splitting("data/mardownDocToSplit.md")
