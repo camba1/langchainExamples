@@ -1,11 +1,22 @@
 # Examples of how to use Langchain memory to interact with stateless LLMs
 from langchain_openai import ChatOpenAI
 from langchain.chains import ConversationChain
+
+# The different types of conversation memory used in the examples
 from langchain.memory import ConversationBufferMemory
+from langchain.memory import ConversationBufferWindowMemory
+from langchain.memory import ConversationTokenBufferMemory
+from langchain.memory import ConversationSummaryBufferMemory
 
 
 def define_conversation(verbose, memory, llm):
-
+    """
+    Set up the conversation chain
+    :param verbose: Indicates whether we want verbose output or not.
+    :param memory: The memory object to be used during the conversation
+    :param llm: Model used in the conversation chain.
+    :return: Conversation chain object.
+    """
     conversation = ConversationChain(
         llm=llm,
         memory=memory,  # Add the memory to the conversation chain
@@ -15,10 +26,16 @@ def define_conversation(verbose, memory, llm):
 
 
 def conversation_buffer_memory(conversation, memory):
-    # Show how a simple conversation buffer memory can be used to store history of a conversation
+    """
+    Examples of running chains with conversation buffer memory. Show how a simple conversation buffer memory can be
+    used to store history of a conversation
+    :param conversation: The conversation object used to chat with llm
+    :param memory: The memory used to store the conversation history
+    """
 
     print('---------- Buffer ------------')
 
+    # Predict Formats the prompt (if needed) and passes it to the LLM
     conversation.predict(input="Hi, my name is Andrew")
     conversation.predict(input="What is 1+1?")
     conversation.predict(input="What is my name?")
@@ -43,27 +60,37 @@ def conversation_buffer_memory(conversation, memory):
     print(f'third memory vars: {memory.load_memory_variables({})}')
 
 
-from langchain.memory import ConversationBufferWindowMemory
-def conversation_buffer_window_memory(conversation):
+def conversation_buffer_window_memory(conversation, memory):
+    """
+    Examples of running chains with conversation buffer window memory. Only remembers last interaction since K was
+    defined in the memory object passed to the function
+    :param conversation: The conversation object used to chat with llm
+    :param memory: The memory used to store the conversation history
+    """
     print('---------- Window buffer ------------')
-    memory = ConversationBufferWindowMemory(k=1)
+    # memory = ConversationBufferWindowMemory(k=1)
     memory.save_context({"input": "Hi"},
                         {"output": "What's up"})
     memory.save_context({"input": "Not much, just hanging"},
                         {"output": "Cool"})
-    #  Only remembers last interaction since K = 1
+    #  Only remembers last interaction since K was defined in the memory object passed to the function
     print(f'fourth memory vars: {memory.load_memory_variables({})}')
-    # Same for LLM interactions
+
     conversation.predict(input="Hi, my name is Andrew")
     conversation.predict(input="What is 1+1?")
     conversation.predict(input="What is my name?")
+
     print(f'fifth memory vars: {memory.load_memory_variables({})}')
 
 
-from langchain.memory import ConversationTokenBufferMemory
 def conversation_token_buffer_memory(memory):
+    """
+    Examples of running chains with conversation token buffer memory. Token limit has been set in the memory,
+     so it will no longer remember (or print) everything that was added to memory
+    :param memory: The memory used to store the conversation history
+    """
     print('---------- Token buffer ------------')
-    #  Token limit has been set in the memory so it will not longer remember (or print) the whole thing
+    #
     memory.save_context({"input": "AI is what?!"},
                         {"output": "Amazing!"})
     memory.save_context({"input": "Backpropagation is what?"},
@@ -73,9 +100,13 @@ def conversation_token_buffer_memory(memory):
     print(f'sixth memory vars: {memory.load_memory_variables({})}')
 
 
-from langchain.memory import ConversationSummaryBufferMemory
-
 def conversation_summary_buffer_memory(conversation, memory):
+    """
+    Examples of running chains with conversation summary buffer window memory. Memory keeps the last interactions
+    (up to the max number of tokens) and then summarizes all previous interactions
+    :param conversation: The conversation object used to chat with llm
+    :param memory: The memory used to store the conversation history
+    """
     print('---------- Summary buffer ------------')
 
     # create a long string
@@ -83,10 +114,9 @@ def conversation_summary_buffer_memory(conversation, memory):
     You will need your powerpoint presentation prepared. \
     9am-12pm have time to work on your LangChain \
     project which will go quickly because Langchain is such a powerful tool. \
-    At Noon, lunch at the italian resturant with a customer who is driving \
+    At Noon, lunch at the italian restaurant with a customer who is driving \
     from over an hour away to meet you to understand the latest in AI. \
     Be sure to bring your laptop to show the latest LLM demo."
-
 
     memory.save_context({"input": "Hello"}, {"output": "What's up"})
     memory.save_context({"input": "Not much, just hanging"},
@@ -98,11 +128,11 @@ def conversation_summary_buffer_memory(conversation, memory):
 
     conversation.predict(input="What would be a good demo to show?")
     print(f'eight memory vars: {memory.load_memory_variables({})}')
-    # In the print above, we see that the LLM incorporates the AI response to the memory (literal up until the
+    # In the print above, we see that the LLM incorporates the AI response to the memory (literal) up until the
     # max number of tokens we have specified and anything before the latest response is summarized
 
-def run_app():
 
+def run_app():
     llm_model = "gpt-3.5-turbo"
 
     llm = ChatOpenAI(temperature=0.0, model=llm_model)
@@ -113,13 +143,14 @@ def run_app():
 
     memory = ConversationBufferWindowMemory(k=1)  # store only last interaction
     conversation = define_conversation(False, memory, llm)
-    conversation_buffer_window_memory(conversation)
+    conversation_buffer_window_memory(conversation, memory)
 
-    memory = ConversationTokenBufferMemory(llm=llm, max_token_limit=30)  # store only last 50 tokens, Need to specify LLM since different LLMs have different token counters
-    # conversation = define_conversation(False, memory, llm)
+    memory = ConversationTokenBufferMemory(llm=llm,
+                                           max_token_limit=30)  # store only last 30 tokens, Need to specify LLM since different LLMs have different token counters
     conversation_token_buffer_memory(memory)
 
-    memory = ConversationSummaryBufferMemory(llm=llm, max_token_limit=400)  # Used to generate a summary of Conv., but store only last 100 token
+    memory = ConversationSummaryBufferMemory(llm=llm,
+                                             max_token_limit=400)  # Used to generate a summary of Conv., but store only last 400 token
     conversation = define_conversation(True, memory, llm)
     conversation_summary_buffer_memory(conversation, memory)
 
