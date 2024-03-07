@@ -29,6 +29,7 @@ vector store
   - **simpleRagChatbotChroma**: A basic chat that uses RAG along with a vector store (Chroma)
 - **gradioChatbot**: Simple chat application that was built using Gradio (WebUI), langchain and OpenAI
 Run with ` python gradioChatbot.py` or to have watching enabled run `gradio gradioChatbot.py`
+- **openAiFunctions**: Examples of calling OpenAI functions using  OpenAI directly
 - **simpleGradio**: A simple Gradio frontend. Not connected to anything. Run with ` python simpleGradio.py`
 - **simpleOpenAi**: Simple program to interact with openAI using the OpenAi library directly
 - **streamlitChatBot**: Simple chat application that was built using Streamlit (WebUI), langchain and OpenAI.
