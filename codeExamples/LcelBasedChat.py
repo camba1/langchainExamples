@@ -17,6 +17,9 @@ output_parser = StrOutputParser()
 
 
 def simple_chain():
+    """
+    Create a basic chain
+    """
     prompt = ChatPromptTemplate.from_template("Tell me a joke about {topic}")
     chain = prompt | model | output_parser
     result = chain.invoke({"topic": "peanuts"})
@@ -24,6 +27,9 @@ def simple_chain():
 
 
 def simple_rag_chain():
+    """
+    This function executes a simple RAG (Retrieval-Augmented Generation) chain using Qdrant as the vector store
+    """
     import os
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
@@ -54,6 +60,9 @@ def simple_rag_chain():
 
 
 def bind_openai_functions():
+    """
+    Binds OpenAI functions to the model and invokes them based on the given prompt.
+    """
     prompt = ChatPromptTemplate.from_messages(
         [
             ("human", "{input}")
@@ -105,6 +114,13 @@ def bind_openai_functions():
 
 
 def chain_with_fallback():
+    """
+    Performs a chat conversation using a fallback mechanism.
+    The function creates a `chain` by calling the `with_fallbacks` method on the primary chain and passing
+    the secondary chain as a fallback. This ensures that if the primary chain fails, the secondary chain will be
+    invoked automatically.
+    """
+
     chat_prompt = ChatPromptTemplate.from_messages(
         [
             (
@@ -131,6 +147,17 @@ def chain_with_fallback():
 
 
 async def batch_stream_asynch():
+    """
+    This function demonstrates the usage of the `batch`, `stream`, and `ainvoke` methods of the `chain` object.
+    The `batch` method allows invoking the chain with multiple inputs in parallel, returning the results as a list.
+     In this example, the chain is invoked with two different topics: "birds" and "elephants".
+    The `stream` method allows invoking the chain with a single input and iterating over the results as they become
+     available. In this example, the chain is invoked with the topic "cats", and each result is printed.
+    The `ainvoke` method is an asynchronous version of the `invoke` method. It allows invoking the chain
+    with a single input and awaiting the result. In this example, the chain is invoked with the topic "dogs",
+    and the result is printed.
+    """
+
     prompt = ChatPromptTemplate.from_template(
         "Tell me a short joke about {topic}"
     )
@@ -155,10 +182,10 @@ async def batch_stream_asynch():
 
 
 def app_run():
-    # simple_chain()
-    # simple_rag_chain()
-    # bind_openai_functions()
-    # chain_with_fallback()
+    simple_chain()
+    simple_rag_chain()
+    bind_openai_functions()
+    chain_with_fallback()
     asyncio.run(batch_stream_asynch())
 
 
